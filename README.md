@@ -5,7 +5,7 @@
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/strongishllama/static-website-cdk/Release)
 
 ## Introduction
-* Common constructs for static websites.
+* Common CDK constructs for static websites.
 * Build and deployment pipeline.
 * CloudFront distribution with a custom domain and HTTPS support.
 
