@@ -44,7 +44,7 @@ export interface StaticWebsitePipelineProps {
    * An array of email addresses to be notified after the build stage allowing
    * the approval of the deploy stage.
    */
-  readonly approvalNotifyEmails: string[];
+  readonly approvalNotifyEmails?: string[];
   /**
    * The ARN of the S3 bucket where the built website code will be stored.
    */
@@ -101,7 +101,7 @@ export class StaticWebsitePipeline extends cdk.Construct {
     });
 
     // If we've been given approval notify emails, add a manual approval step before deployment.
-    if (props.approvalNotifyEmails.length !== 0) {
+    if (props.approvalNotifyEmails !== undefined && props.approvalNotifyEmails.length !== 0) {
       pipeline.addStage({
         stageName: 'Approve',
         actions: [
