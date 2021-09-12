@@ -9,11 +9,10 @@ test('Static Website Pipeline', () => {
   const stack = new cdk.Stack(app, "test-stack");
   const props: StaticWebsitePipelineProps = {
     namespace: 'test',
-    stage: 'test',
     sourceOwner: 'test-owner',
     sourceRepo: 'test-repository',
     sourceBranch: 'main',
-    sourceOAuthToken: cdk.SecretValue.plainText('test-oauth-token'),
+    githubOAuthToken: cdk.SecretValue.plainText('test-oauth-token'),
     buildEnvironmentVariables: {
       'BASE_URL': {
         type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
@@ -23,15 +22,16 @@ test('Static Website Pipeline', () => {
     approvalNotifyEmails: [
       'admin@test.com'
     ],
-    deployBucketArn: 'arn:aws:s3:::test-bucket'
+    deployBucketArn: 'arn:aws:s3:::test-bucket',
+    distributionId: 'test-id',
+    account: '0123456789'
   };
-  // WHEN
   new StaticWebsitePipeline(stack, 'test-static-website-pipeline-test', props);
   // THEN
-  assert.expect(stack).to(assert.haveResourceLike('AWS::CodePipeline::Pipeline', {
+  assert.expect(stack).to(assert.countResourcesLike('AWS::CodePipeline::Pipeline', 1, {
     'Stages': [
       {
-        'Name': 'Source',
+        'Name': 'source',
         'Actions': [
           {
             'Configuration': {
@@ -44,7 +44,7 @@ test('Static Website Pipeline', () => {
         ]
       },
       {
-        'Name': 'Build',
+        'Name': 'build',
         'Actions': [
           {
             'Configuration': {
@@ -54,28 +54,13 @@ test('Static Website Pipeline', () => {
         ]
       },
       {
-        'Name': 'Approve',
-        'Actions': [
-          {
-            'Configuration': {
-              'NotificationArn': {
-                'Ref': assert.anything()
-              }
-            },
-          }
-        ],
+        'Name': 'approve'
       },
       {
-        'Name': 'Deploy',
-        'Actions': [
-          {
-            'Configuration': {
-              'BucketName': assert.anything(),
-              'Extract': 'true'
-            }
-          }
-        ]
+        'Name': 'deploy'
       }
     ]
   }));
+  // Two functions, one for the auto deleting the pipeline artifacts bucket and the other for clearing the distribution cache.
+  assert.expect(stack).to(assert.countResources('AWS::Lambda::Function', 2))
 });

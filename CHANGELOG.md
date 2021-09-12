@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.2.0 - 2021-09-12
+### Added
+* Added a Lambda function to invalidate the CloudFront distribution cache when the pipeline is run.
+
+### Changed
+* Changed the distribution resources to be a public property accessible via ```StaticWebsiteDeployment.distribution```.
+
+### Removed
+* **BREAKING**: Removed ```StaticWebsiteDeploymentProps.stage``` property.
+* **BREAKING**: Removed ```StaticWebsitePipelineProps.stage``` property.
+* **BREAKING**: Removed ```StaticWebsiteDeploymentProps.stage``` property from resource IDs.
+* **BREAKING**: Removed ```StaticWebsitePipelineProps.stage``` property from resource IDs.
+
 ## v0.1.1 - 2021-08-22
 ### Changed
 * Changed ```StaticWebsitePipelineProps.approvalNotifyEmails``` property to be optional.

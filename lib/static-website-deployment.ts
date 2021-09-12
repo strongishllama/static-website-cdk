@@ -13,13 +13,6 @@ export interface StaticWebsiteDeploymentProps {
    */
   readonly namespace: string;
   /**
-   * Is used to avoid naming collisions between resources in different stages.
-   * As well as allowing them to be more easily identified.
-   *
-   * @example dev, test, staging, prod
-   */
-  readonly stage: string;
-  /**
    * The base domain name that the website will be available at.
    *
    * @example example.com
@@ -40,11 +33,13 @@ export interface StaticWebsiteDeploymentProps {
 }
 
 export class StaticWebsiteDeployment extends cdk.Construct {
+  public readonly distribution: cloudfront.Distribution;
+
   constructor(scope: cdk.Construct, id: string, props: StaticWebsiteDeploymentProps) {
     super(scope, id);
 
     // Fetch hosted zone via the domain name.
-    const hostedZone = route53.HostedZone.fromLookup(this, `${props.namespace}-website-hosted-zone-${props.stage}`, {
+    const hostedZone = route53.HostedZone.fromLookup(this, `${props.namespace}-website-hosted-zone`, {
       domainName: props.baseDomainName
     });
 
@@ -55,17 +50,17 @@ export class StaticWebsiteDeployment extends cdk.Construct {
     }
 
     // Create a DNS validated certificate for HTTPS. The region has to be 'us-east-1'.
-    const dnsValidatedCertificate = new certificatemanager.DnsValidatedCertificate(this, `${props.namespace}-dns-validated-certificate-${props.stage}`, {
+    const dnsValidatedCertificate = new certificatemanager.DnsValidatedCertificate(this, `${props.namespace}-dns-validated-certificate`, {
       domainName: fullDomainName,
       hostedZone: hostedZone,
       region: 'us-east-1',
     });
 
     // Create a distribution attached to the S3 bucket and DNS validated certificate.
-    const distribution = new cloudfront.Distribution(this, `${props.namespace}-distribution-${props.stage}`, {
+    this.distribution = new cloudfront.Distribution(this, `${props.namespace}-distribution`, {
       defaultBehavior: {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        origin: new origins.S3Origin(s3.Bucket.fromBucketArn(this, `${props.namespace}-origin-bucket-${props.stage}`, props.originBucketArn)),
+        origin: new origins.S3Origin(s3.Bucket.fromBucketArn(this, `${props.namespace}-origin-bucket`, props.originBucketArn)),
       },
       certificate: dnsValidatedCertificate,
       defaultRootObject: 'index.html',
@@ -87,11 +82,11 @@ export class StaticWebsiteDeployment extends cdk.Construct {
     });
 
     // Create an A record pointing at the web distribution.
-    new route53.ARecord(this, `${props.namespace}-a-record-${props.stage}`, {
+    new route53.ARecord(this, `${props.namespace}-a-record`, {
       zone: hostedZone,
       recordName: fullDomainName,
       ttl: cdk.Duration.seconds(60),
-      target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution))
+      target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(this.distribution))
     });
   }
 }

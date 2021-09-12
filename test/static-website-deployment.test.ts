@@ -13,12 +13,10 @@ test('Static Website Deployment', () => {
   });
   const props: StaticWebsiteDeploymentProps = {
     namespace: 'test',
-    stage: 'test',
     baseDomainName: 'test.com',
     fullDomainName: 'admin.test.com',
     originBucketArn: 'arn:aws:s3:::test-bucket'
   };
-  // WHEN
   new StaticWebsiteDeployment(stack, 'test-static-website-deployment-test', props);
   // THEN
   assert.expect(stack).to(assert.haveResourceLike('AWS::CloudFront::Distribution', {

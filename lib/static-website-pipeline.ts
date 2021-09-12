@@ -2,7 +2,10 @@ import * as cdk from '@aws-cdk/core';
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
+import * as lambda_nodejs from '@aws-cdk/aws-lambda-nodejs';
+import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
+import { CloudFront } from '@strongishllama/iam-constants-cdk';
 
 export interface StaticWebsitePipelineProps {
   /**
@@ -10,13 +13,6 @@ export interface StaticWebsitePipelineProps {
    * allowing them to be more easily identified.
    */
   readonly namespace: string;
-  /**
-   * Is used to avoid naming collisions between resources in different stages.
-   * As well as allowing them to be more easily identified.
-   *
-   * @example dev, test, staging, prod
-   */
-  readonly stage: string;
   /**
    * The owner of where the source code is located on GitHub, this should either be
    * a GitHub username or organization name.
@@ -33,7 +29,7 @@ export interface StaticWebsitePipelineProps {
   /**
    * A GitHub OAuth token to use for authentication.
    */
-  readonly sourceOAuthToken: cdk.SecretValue;
+  readonly githubOAuthToken: cdk.SecretValue;
   /**
    * The environment variables to be exposed on the build stage.
    */
@@ -49,6 +45,14 @@ export interface StaticWebsitePipelineProps {
    * The ARN of the S3 bucket where the built website code will be stored.
    */
   readonly deployBucketArn: string;
+  /**
+   * The ID of the CloudFront distribution where the website will be served.
+   */
+  readonly distributionId: string;
+  /**
+   * The number of the AWS account where this stack is being deployed.
+   */
+  readonly account: string;
 }
 
 export class StaticWebsitePipeline extends cdk.Construct {
@@ -60,35 +64,35 @@ export class StaticWebsitePipeline extends cdk.Construct {
     const buildOutput = new codepipeline.Artifact();
 
     // Create pipeline to source, build and deploy the frontend website.
-    const pipeline = new codepipeline.Pipeline(this, `${props.namespace}-pipeline-${props.stage}`, {
-      artifactBucket: new s3.Bucket(this, `${props.namespace}-bucket-${props.stage}`, {
+    const pipeline = new codepipeline.Pipeline(this, `${props.namespace}-pipeline`, {
+      artifactBucket: new s3.Bucket(this, `${props.namespace}-bucket`, {
         removalPolicy: cdk.RemovalPolicy.DESTROY,
         autoDeleteObjects: true
       }),
       stages: [
         {
-          stageName: 'Source',
+          stageName: 'source',
           actions: [
             new codepipeline_actions.GitHubSourceAction({
-              actionName: 'Source',
+              actionName: 'source',
               output: sourceOutput,
               owner: props.sourceOwner,
               repo: props.sourceRepo,
               branch: props.sourceBranch,
-              oauthToken: props.sourceOAuthToken
+              oauthToken: props.githubOAuthToken
             })
           ]
         },
         {
-          stageName: 'Build',
+          stageName: 'build',
           actions: [
             new codepipeline_actions.CodeBuildAction({
-              actionName: 'Build',
+              actionName: 'build',
               input: sourceOutput,
               outputs: [
                 buildOutput
               ],
-              project: new codebuild.PipelineProject(this, `${props.namespace}-project-${props.stage}`, {
+              project: new codebuild.PipelineProject(this, `${props.namespace}-project`, {
                 environment: {
                   buildImage: codebuild.LinuxBuildImage.STANDARD_5_0
                 }
@@ -103,10 +107,10 @@ export class StaticWebsitePipeline extends cdk.Construct {
     // If we've been given approval notify emails, add a manual approval step before deployment.
     if (props.approvalNotifyEmails !== undefined && props.approvalNotifyEmails.length !== 0) {
       pipeline.addStage({
-        stageName: 'Approve',
+        stageName: 'approve',
         actions: [
           new codepipeline_actions.ManualApprovalAction({
-            actionName: 'Approve',
+            actionName: 'approve',
             notifyEmails: props.approvalNotifyEmails
           })
         ]
@@ -114,12 +118,30 @@ export class StaticWebsitePipeline extends cdk.Construct {
     }
 
     pipeline.addStage({
-      stageName: 'Deploy',
+      stageName: 'deploy',
       actions: [
         new codepipeline_actions.S3DeployAction({
-          actionName: 'Deploy',
+          actionName: 'deploy-static-website',
           input: buildOutput,
-          bucket: s3.Bucket.fromBucketArn(this, `${props.namespace}-deploy-bucket-${props.stage}`, props.deployBucketArn)
+          bucket: s3.Bucket.fromBucketArn(this, `${props.namespace}-deploy-bucket`, props.deployBucketArn)
+        }),
+        new codepipeline_actions.LambdaInvokeAction({
+          actionName: 'invalidate-distribution-cache',
+          lambda: new lambda_nodejs.NodejsFunction(this, 'invalidate-cache', {
+            environment: {
+              'DISTRIBUTION_ID': props.distributionId
+            },
+            initialPolicy: [
+              new iam.PolicyStatement({
+                actions: [
+                  CloudFront.CREATE_INVALIDATION
+                ],
+                resources: [
+                  `arn:aws:cloudfront::${props.account}:distribution/${props.distributionId}`
+                ]
+              })
+            ]
+          })
         })
       ]
     });
