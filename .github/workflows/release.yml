@@ -19,7 +19,7 @@ jobs:
         npm ci --ignore-scripts
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-    - name: Run tests
+    - name: Test
       run: npm run test
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
@@ -30,7 +30,7 @@ jobs:
     - name: Publish
       run: npm publish
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NPM_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   release:
     name: Release
     needs: [ publish ]
