@@ -20,18 +20,15 @@ jobs:
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - name: Run tests
-      run: |
-        npm run test
+      run: npm run test
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - name: Build
-      run: |
-        npm run build
+      run: npm run build
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - name: Publish
-      run: |
-        npm publish
+      run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   release:
@@ -41,7 +38,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Release
-      run: |
-        gh release create ${GITHUB_REF#refs/*/} --title ${GITHUB_REF#refs/*/}
+      run: gh release create ${GITHUB_REF#refs/*/} --title ${GITHUB_REF#refs/*/}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
