@@ -8,11 +8,6 @@ import * as s3 from '@aws-cdk/aws-s3';
 
 export interface StaticWebsiteDeploymentProps {
   /**
-   * Is used to avoid naming collisions between stacks and resources. As well as
-   * allowing them to be more easily identified.
-   */
-  readonly namespace: string;
-  /**
    * The base domain name that the website will be available at.
    *
    * @example example.com
@@ -39,7 +34,7 @@ export class StaticWebsiteDeployment extends cdk.Construct {
     super(scope, id);
 
     // Fetch hosted zone via the domain name.
-    const hostedZone = route53.HostedZone.fromLookup(this, `${props.namespace}-website-hosted-zone`, {
+    const hostedZone = route53.HostedZone.fromLookup(this, 'website-hosted-zone', {
       domainName: props.baseDomainName
     });
 
@@ -50,17 +45,17 @@ export class StaticWebsiteDeployment extends cdk.Construct {
     }
 
     // Create a DNS validated certificate for HTTPS. The region has to be 'us-east-1'.
-    const dnsValidatedCertificate = new certificatemanager.DnsValidatedCertificate(this, `${props.namespace}-dns-validated-certificate`, {
+    const dnsValidatedCertificate = new certificatemanager.DnsValidatedCertificate(this, 'dns-validated-certificate', {
       domainName: fullDomainName,
       hostedZone: hostedZone,
       region: 'us-east-1',
     });
 
     // Create a distribution attached to the S3 bucket and DNS validated certificate.
-    this.distribution = new cloudfront.Distribution(this, `${props.namespace}-distribution`, {
+    this.distribution = new cloudfront.Distribution(this, 'distribution', {
       defaultBehavior: {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        origin: new origins.S3Origin(s3.Bucket.fromBucketArn(this, `${props.namespace}-origin-bucket`, props.originBucketArn)),
+        origin: new origins.S3Origin(s3.Bucket.fromBucketArn(this, 'origin-bucket', props.originBucketArn)),
       },
       certificate: dnsValidatedCertificate,
       defaultRootObject: 'index.html',
@@ -82,7 +77,7 @@ export class StaticWebsiteDeployment extends cdk.Construct {
     });
 
     // Create an A record pointing at the web distribution.
-    new route53.ARecord(this, `${props.namespace}-a-record`, {
+    new route53.ARecord(this, 'a-record', {
       zone: hostedZone,
       recordName: fullDomainName,
       ttl: cdk.Duration.seconds(60),

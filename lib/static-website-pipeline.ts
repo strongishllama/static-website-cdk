@@ -9,11 +9,6 @@ import { CloudFront } from '@strongishllama/aws-iam-constants';
 
 export interface StaticWebsitePipelineProps {
   /**
-   * Is used to avoid naming collisions between stacks and resources. As well as
-   * allowing them to be more easily identified.
-   */
-  readonly namespace: string;
-  /**
    * The owner of where the source code is located on GitHub, this should either be
    * a GitHub username or organization name.
    */
@@ -64,8 +59,8 @@ export class StaticWebsitePipeline extends cdk.Construct {
     const buildOutput = new codepipeline.Artifact();
 
     // Create pipeline to source, build and deploy the frontend website.
-    const pipeline = new codepipeline.Pipeline(this, `${props.namespace}-pipeline`, {
-      artifactBucket: new s3.Bucket(this, `${props.namespace}-bucket`, {
+    const pipeline = new codepipeline.Pipeline(this, 'pipeline', {
+      artifactBucket: new s3.Bucket(this, 'bucket', {
         removalPolicy: cdk.RemovalPolicy.DESTROY,
         autoDeleteObjects: true
       }),
@@ -92,7 +87,7 @@ export class StaticWebsitePipeline extends cdk.Construct {
               outputs: [
                 buildOutput
               ],
-              project: new codebuild.PipelineProject(this, `${props.namespace}-project`, {
+              project: new codebuild.PipelineProject(this, 'project', {
                 environment: {
                   buildImage: codebuild.LinuxBuildImage.STANDARD_5_0
                 }
@@ -123,7 +118,7 @@ export class StaticWebsitePipeline extends cdk.Construct {
         new codepipeline_actions.S3DeployAction({
           actionName: 'deploy-static-website',
           input: buildOutput,
-          bucket: s3.Bucket.fromBucketArn(this, `${props.namespace}-deploy-bucket`, props.deployBucketArn)
+          bucket: s3.Bucket.fromBucketArn(this, 'deploy-bucket', props.deployBucketArn)
         }),
         new codepipeline_actions.LambdaInvokeAction({
           actionName: 'invalidate-distribution-cache',
