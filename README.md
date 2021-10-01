@@ -14,6 +14,11 @@
 npm install @strongishllama/static-website-cdk
 ```
 
+You'll also need to install the following peer dependencies. See this [article](https://dev.to/aws-builders/correctly-defining-dependencies-in-l3-cdk-constructs-45p) for more information why.
+```
+npm install @aws-cdk/aws-certificatemanager @aws-cdk/aws-cloudfront @aws-cdk/aws-cloudfront-origins @aws-cdk/aws-codebuild @aws-cdk/aws-codepipeline @aws-cdk/aws-codepipeline-actions @aws-cdk/aws-lambda-nodejs @aws-cdk/aws-route53-targets
+```
+
 ## Example
 ```ts
 // Create a build and deployment pipeline.
