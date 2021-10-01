@@ -29,14 +29,12 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '14.x'
-        registry-url: 'https://npm.pkg.github.com'
-        scope: '@strongishllama'
     - name: Install (ignore scripts)
       run: npm ci --ignore-scripts
     - name: Build
       run: npm run build
     - name: Publish
-      run: npm publish
+      run: npm publish --registry https://npm.pkg.github.com
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # publish-npm:
@@ -62,6 +60,8 @@ jobs:
     name: Release
     needs: [ test ]
     runs-on: ubuntu-latest
+    # Don't create a release if the tag is a release candidate.
+    if: "!contains('${GITHUB_REF#refs/*/}', '-rc.')"
     steps:
     - uses: actions/checkout@v2
     - name: Release
