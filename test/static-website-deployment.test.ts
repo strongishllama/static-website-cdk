@@ -12,7 +12,6 @@ test('Static Website Deployment', () => {
     }
   });
   const props: StaticWebsiteDeploymentProps = {
-    namespace: 'test',
     baseDomainName: 'test.com',
     fullDomainName: 'admin.test.com',
     originBucketArn: 'arn:aws:s3:::test-bucket'
