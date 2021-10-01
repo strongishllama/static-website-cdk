@@ -8,7 +8,6 @@ test('Static Website Pipeline', () => {
   const app = new cdk.App();
   const stack = new cdk.Stack(app, "test-stack");
   const props: StaticWebsitePipelineProps = {
-    namespace: 'test',
     sourceOwner: 'test-owner',
     sourceRepo: 'test-repository',
     sourceBranch: 'main',

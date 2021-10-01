@@ -1,6 +1,6 @@
 # Static Website CDK
 
-![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/strongishllama/static-website-cdk?include_prereleases)
+![NPN version](https://img.shields.io/npm/v/@strongishllama/static-website-cdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://raw.githubusercontent.com/strongishllama/static-website-cdk/main/LICENSE)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/strongishllama/static-website-cdk/Release)
 
@@ -8,6 +8,16 @@
 * Common CDK constructs for static websites.
 * Build and deployment pipeline.
 * CloudFront distribution with a custom domain and HTTPS support.
+
+## Installation
+```
+npm install @strongishllama/static-website-cdk
+```
+
+You'll also need to install the following peer dependencies. See this [article](https://dev.to/aws-builders/correctly-defining-dependencies-in-l3-cdk-constructs-45p) for more information.
+```
+npm install @aws-cdk/aws-certificatemanager @aws-cdk/aws-cloudfront @aws-cdk/aws-cloudfront-origins @aws-cdk/aws-codebuild @aws-cdk/aws-codepipeline @aws-cdk/aws-codepipeline-actions @aws-cdk/aws-lambda-nodejs @aws-cdk/aws-route53-targets
+```
 
 ## Example
 ```ts
