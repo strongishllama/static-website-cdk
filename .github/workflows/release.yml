@@ -20,8 +20,8 @@ jobs:
         run: npm run build
       - name: Test
         run: npm run test
-  publish-github:
-    name: Publish GitHub
+  publish:
+    name: Publish
     needs: [ test ]
     runs-on: ubuntu-latest
     steps:
@@ -29,35 +29,16 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '14.x'
+        # registry-url: 'https://registry.npmjs.org'
+        # scope: '@strongishllama'
     - name: Install (ignore scripts)
       run: npm ci --ignore-scripts
     - name: Build
       run: npm run build
     - name: Publish
-      run: |
-        echo registry=https://npm.pkg.github.com/strongishllama >> .npmrc
-        npm publish
+      run: npm publish --access public
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  # publish-npm:
-  #   name: Publish NPM
-  #   needs: [ test ]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - uses: actions/setup-node@v2
-  #     with:
-  #       node-version: '14.x'
-  #       registry-url: 'https://registry.npmjs.org'
-  #       scope: '@strongishllama'
-  #   - name: Install (ignore scripts)
-  #     run: npm ci --ignore-scripts
-  #   - name: Build
-  #     run: npm run build
-  #   - name: Publish
-  #     run: npm publish --access public
-  #     env:
-  #       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   release:
     name: Release
     needs: [ test ]
