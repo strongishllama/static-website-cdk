@@ -23,8 +23,6 @@ npm install @aws-cdk/aws-certificatemanager @aws-cdk/aws-cloudfront @aws-cdk/aws
 ```ts
 // Create a build and deployment pipeline.
 new StaticWebsitePipeline(stack, 'static-website-pipeline', {
-  namespace: 'example',
-  stage: 'prod',
   sourceOwner: 'example-owner',
   sourceRepo: 'example-repository',
   sourceBranch: 'main',
@@ -43,8 +41,6 @@ new StaticWebsitePipeline(stack, 'static-website-pipeline', {
 
 // Create a CloudFront distribution with a custom domain and HTTPS.
 new StaticWebsiteDeployment(stack, 'static-website-deployment', {
-  namespace: 'example',
-  stage: 'prod',
   baseDomainName: 'example.com',
   fullDomainName: 'admin.example.com',
   originBucketArn: 'arn:aws:s3:::example-bucket'
