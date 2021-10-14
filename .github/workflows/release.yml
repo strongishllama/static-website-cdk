@@ -42,7 +42,7 @@ jobs:
 
   publish:
     name: Publish
-    needs: [ test ]
+    needs: [ test, analyze ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -62,7 +62,7 @@ jobs:
 
   release:
     name: Release
-    needs: [ test ]
+    needs: [ test, analyze ]
     runs-on: ubuntu-latest
     # Don't create a release if the tag is a release candidate.
     if: "!contains('${GITHUB_REF#refs/*/}', '-rc.')"
