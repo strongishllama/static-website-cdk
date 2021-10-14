@@ -61,5 +61,5 @@ test('Static Website Pipeline', () => {
     ]
   }));
   // Two functions, one for the auto deleting the pipeline artifacts bucket and the other for clearing the distribution cache.
-  assert.expect(stack).to(assert.countResources('AWS::Lambda::Function', 2))
+  assert.expect(stack).to(assert.countResources('AWS::Lambda::Function', 1))
 });

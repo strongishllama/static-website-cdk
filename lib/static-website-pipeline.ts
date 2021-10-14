@@ -87,7 +87,7 @@ export class StaticWebsitePipeline extends cdk.Construct {
               outputs: [
                 buildOutput
               ],
-              project: new codebuild.PipelineProject(this, 'project', {
+              project: new codebuild.PipelineProject(this, 'build-project', {
                 environment: {
                   buildImage: codebuild.LinuxBuildImage.STANDARD_5_0
                 }
@@ -112,6 +112,24 @@ export class StaticWebsitePipeline extends cdk.Construct {
       });
     }
 
+    // Create the pipeline project to validate the distribution cache.
+    const invalidateCachePipelineProject = new codebuild.PipelineProject(this, 'invalidate-cache-project', {
+      buildSpec: codebuild.BuildSpec.fromSourceFilename('./buildspec.yml'),
+      environment: {
+        buildImage: codebuild.LinuxBuildImage.STANDARD_5_0
+      }
+    });
+
+    // Allow the pipeline project to invalidate the distribution cache.
+    invalidateCachePipelineProject.role?.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: [
+        'cloudfront:CreateInvalidation'
+      ],
+      resources: [
+        `arn:aws:cloudfront::${props.account}:distribution/${props.distributionId}`
+      ]
+    }));
+
     pipeline.addStage({
       stageName: 'deploy',
       actions: [
@@ -120,23 +138,11 @@ export class StaticWebsitePipeline extends cdk.Construct {
           input: buildOutput,
           bucket: s3.Bucket.fromBucketArn(this, 'deploy-bucket', props.deployBucketArn)
         }),
-        new codepipeline_actions.LambdaInvokeAction({
-          actionName: 'invalidate-distribution-cache',
-          lambda: new lambda_nodejs.NodejsFunction(this, 'invalidate-cache', {
-            environment: {
-              'DISTRIBUTION_ID': props.distributionId
-            },
-            initialPolicy: [
-              new iam.PolicyStatement({
-                actions: [
-                  CloudFront.CREATE_INVALIDATION
-                ],
-                resources: [
-                  `arn:aws:cloudfront::${props.account}:distribution/${props.distributionId}`
-                ]
-              })
-            ]
-          })
+        new codepipeline_actions.CodeBuildAction({
+          actionName: 'invalidate-cache',
+          input: sourceOutput,
+          project: invalidateCachePipelineProject,
+          environmentVariables: props.buildEnvironmentVariables
         })
       ]
     });
