@@ -26,7 +26,7 @@
     "@aws-cdk/aws-route53-targets": "^1.116.0",
     "@aws-cdk/aws-s3": "^1.116.0",
     "@aws-cdk/core": "^1.116.0",
-    "@types/aws-lambda": "^8.10.83",
+    "@types/aws-lambda": "^8.10.84",
     "@types/jest": "^27.0.2",
     "@types/node": "16.11.0",
     "jest": "^26.4.2",
