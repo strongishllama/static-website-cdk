@@ -135,12 +135,6 @@ export class StaticWebsitePipeline extends cdk.Construct {
           actionName: 'deploy-static-website',
           input: buildOutput,
           bucket: s3.Bucket.fromBucketArn(this, 'deploy-bucket', props.deployBucketArn)
-        }),
-        new codepipeline_actions.CodeBuildAction({
-          actionName: 'invalidate-cache',
-          input: sourceOutput,
-          project: invalidateCachePipelineProject,
-          environmentVariables: props.buildEnvironmentVariables
         })
       ]
     });
