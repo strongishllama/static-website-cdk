@@ -112,7 +112,16 @@ export class StaticWebsitePipeline extends cdk.Construct {
 
     // Create the pipeline project to validate the distribution cache.
     const invalidateCachePipelineProject = new codebuild.PipelineProject(this, 'invalidate-cache-project', {
-      buildSpec: codebuild.BuildSpec.fromSourceFilename('./buildspec.yml'),
+      buildSpec: codebuild.BuildSpec.fromObject({
+        version: 0.2,
+        phases: {
+          post_build: {
+            commands: [
+              `aws cloudfront create-invalidation --distribution-id ${props.distributionId} --paths "/*"`
+            ]
+          }
+        }
+      }),
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_5_0
       }
@@ -132,9 +141,14 @@ export class StaticWebsitePipeline extends cdk.Construct {
       stageName: 'deploy',
       actions: [
         new codepipeline_actions.S3DeployAction({
-          actionName: 'deploy-static-website',
+          actionName: 'deploy-website',
           input: buildOutput,
           bucket: s3.Bucket.fromBucketArn(this, 'deploy-bucket', props.deployBucketArn)
+        }),
+        new codepipeline_actions.CodeBuildAction({
+          actionName: 'invalidate-cache',
+          input: sourceOutput,
+          project: invalidateCachePipelineProject
         })
       ]
     });
