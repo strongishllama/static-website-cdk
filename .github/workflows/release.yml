@@ -15,10 +15,10 @@ jobs:
     needs: [security-scan, test]
     uses: strongishllama/static-website-cdk/.github/workflows/_github-release.yml@main
     secrets:
-      node-auth-token: ${{ secrets.NPM_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
   npm-publish:
     name: NPM Publish
     needs: [security-scan, test]
     uses: strongishllama/static-website-cdk/.github/workflows/_github-release.yml@main
     secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+      node-auth-token: ${{ secrets.NPM_TOKEN }}
