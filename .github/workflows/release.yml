@@ -10,9 +10,6 @@ jobs:
   test:
     name: Test
     uses: strongishllama/static-website-cdk/.github/workflows/_npm-test.yml@main
-  lint:
-    name: Lint
-    uses: strongishllama/static-website-cdk/.github/workflows/_prettier.yml@main
   github-release:
     name: GitHub Release
     needs: [security-scan, test]
