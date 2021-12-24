@@ -15,6 +15,6 @@ jobs:
     if: "!contains('${GITHUB_REF#refs/*/}', '-rc.')"
     steps:
       - uses: actions/checkout@v2
-      run: gh release create ${GITHUB_REF#refs/*/} --title ${GITHUB_REF#refs/*/}
-      env:
-        GITHUB_TOKEN: ${{ secrets.github-token }}
+      - run: gh release create ${GITHUB_REF#refs/*/} --title ${GITHUB_REF#refs/*/}
+        env:
+          GITHUB_TOKEN: ${{ secrets.github-token }}
