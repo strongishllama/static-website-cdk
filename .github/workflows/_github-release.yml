@@ -9,7 +9,6 @@ on:
 jobs:
   github-release:
     name: GitHub Release
-    needs: [test, analyze]
     runs-on: ubuntu-latest
     # Don't create a release if the tag is a release candidate.
     if: "!contains('${GITHUB_REF#refs/*/}', '-rc.')"
