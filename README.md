@@ -14,35 +14,45 @@
 npm install @strongishllama/static-website-cdk
 ```
 
-You'll also need to install the following peer dependencies. See this [article](https://dev.to/aws-builders/correctly-defining-dependencies-in-l3-cdk-constructs-45p) for more information.
-```
-npm install @aws-cdk/aws-certificatemanager @aws-cdk/aws-cloudfront @aws-cdk/aws-cloudfront-origins @aws-cdk/aws-codebuild @aws-cdk/aws-codepipeline @aws-cdk/aws-codepipeline-actions @aws-cdk/aws-lambda-nodejs @aws-cdk/aws-route53-targets
-```
-
 ## Example
 ```ts
-// Create a build and deployment pipeline.
-new StaticWebsitePipeline(stack, 'static-website-pipeline', {
-  sourceOwner: 'example-owner',
-  sourceRepo: 'example-repository',
-  sourceBranch: 'main',
-  sourceOAuthToken: cdk.SecretValue.plainText('oauth-token'),
-  buildEnvironmentVariables: {
-    'BASE_URL': {
-    type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-    value: 'https://example.com'
-    }
-  },
-  approvalNotifyEmails: [
-    'admin@example.com'
-  ],
-  deployBucketArn: 'arn:aws:s3:::example-bucket'
-});
+import * as codebuild from "aws-cdk-lib/aws-codebuild";
+import * as route53 from "aws-cdk-lib/aws-route53";
+import * as s3 from "aws-cdk-lib/aws-s3";
+import * as cdk from "aws-cdk-lib/core";
+import { Construct } from "constructs";
+import { Deployment, Pipeline, PipelineProps } from "@strongishllama/static-website-cdk";
 
-// Create a CloudFront distribution with a custom domain and HTTPS.
-new StaticWebsiteDeployment(stack, 'static-website-deployment', {
-  baseDomainName: 'example.com',
-  fullDomainName: 'admin.example.com',
-  originBucketArn: 'arn:aws:s3:::example-bucket'
-});
+export class ExampleStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const bucket = new s3.Bucket(this, "bucket");
+
+    const deployment = new Deployment(this, "deployment", {
+      hostedZone: route53.HostedZone.fromLookup(this, "hosted-zone", {
+        domainName: "example.com",
+      }),
+      domainName: "example.com",
+      originBucket: bucket,
+    });
+
+    new Pipeline(this, "pipeline", {
+      sourceOwner: "example-owner",
+      sourceRepo: "example-repo",
+      sourceBranch: "main",
+      githubOAuthToken: cdk.SecretValue.plainText("example-secret-value"),
+      buildEnvironmentVariables: {
+        "example-key": {
+          type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
+          value: "example-value",
+        },
+      },
+      approvalNotifyEmails: ["john@example.com"],
+      deployBucket: bucket,
+      distributionId: deployment.distribution.distributionId,
+      account: "1234567890",
+    });
+  }
+}
 ```

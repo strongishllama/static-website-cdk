@@ -1,14 +1,15 @@
 version: 2
 updates:
-- package-ecosystem: npm
-  directory: /
-  schedule:
-    interval: weekly
-    day: saturday
-    time: '03:00'
-    timezone: Australia/Sydney
-  ignore:
-    # Ignore AWS CDK updates as they're determined by the project importing this package.
-    - dependency-name: "@aws-cdk/*"
-  target-branch: main
-  open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: saturday
+      time: "03:00"
+      timezone: Australia/Sydney
+    ignore:
+      # Ignore AWS CDK and constructs updates as they're determined by the project importing this package.
+      - dependency-name: "aws-cdk-lib"
+      - dependency-name: "constructs"
+    target-branch: main
+    open-pull-requests-limit: 10

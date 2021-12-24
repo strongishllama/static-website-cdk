@@ -1,0 +1,10 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: 0 0 * * *
+
+jobs:
+  security-scan:
+    name: Security Scan
+    uses: strongishllama/static-website-cdk/.github/workflows/_codeql.yml@main

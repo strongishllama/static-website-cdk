@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.4.0 - 2021-12-24
+### Changed
+* **BREAKING** Updated to CDK v2.
+* **BREAKING** Renamed ```StaticWebsiteDeployment``` to ```Deployment```.
+* **BREAKING** Renamed ```StaticWebsitePipeline``` to ```Pipeline```.
+* **BREAKING** Replaced ```StaticWebsiteDeploymentProps``` with ```DeploymentProps```.
+* **BREAKING** Replaced ```StaticWebsitePipelineProps``` with ```PipelineProps```.
+
 ## v0.3.4 - 2021-10-23
 ### Fixed
 * Fixed cache invalidation issue.

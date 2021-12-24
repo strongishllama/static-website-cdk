@@ -1,0 +1,24 @@
+name: NPM Publish
+
+on:
+  workflow_call:
+    secrets:
+      node-auth-token:
+        required: true
+
+jobs:
+  npm-publish:
+    name: NPM Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14.x"
+          registry-url: "https://registry.npmjs.org"
+          scope: "@strongishllama"
+        run: npm ci --ignore-scripts
+        run: npm run build
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.node-auth-token }}

@@ -1,0 +1,20 @@
+name: GitHub Release
+
+on:
+  workflow_call:
+    secrets:
+      github-token:
+        required: true
+
+jobs:
+  github-release:
+    name: GitHub Release
+    needs: [test, analyze]
+    runs-on: ubuntu-latest
+    # Don't create a release if the tag is a release candidate.
+    if: "!contains('${GITHUB_REF#refs/*/}', '-rc.')"
+    steps:
+      - uses: actions/checkout@v2
+        run: gh release create ${GITHUB_REF#refs/*/} --title ${GITHUB_REF#refs/*/}
+        env:
+          GITHUB_TOKEN: ${{ secrets.github-token }}
