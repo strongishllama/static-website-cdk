@@ -2,7 +2,8 @@
 
 ![NPN version](https://img.shields.io/npm/v/@strongishllama/static-website-cdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://raw.githubusercontent.com/strongishllama/static-website-cdk/main/LICENSE)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/strongishllama/static-website-cdk/Release)
+[![CI](https://github.com/strongishllama/static-website-cdk/actions/workflows/ci.yml/badge.svg)](https://github.com/strongishllama/static-website-cdk/actions/workflows/ci.yml)
+[![Release](https://github.com/strongishllama/static-website-cdk/actions/workflows/release.yml/badge.svg)](https://github.com/strongishllama/static-website-cdk/actions/workflows/release.yml)
 
 ## Introduction
 * Common CDK constructs for static websites.
