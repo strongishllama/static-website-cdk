@@ -17,8 +17,8 @@ jobs:
           node-version: "14.x"
           registry-url: "https://registry.npmjs.org"
           scope: "@strongishllama"
-        run: npm ci --ignore-scripts
-        run: npm run build
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.node-auth-token }}
+        - run: npm ci --ignore-scripts
+        - run: npm run build
+        - run: npm publish --access public
+          env:
+            NODE_AUTH_TOKEN: ${{ secrets.node-auth-token }}
