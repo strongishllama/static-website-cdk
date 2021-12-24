@@ -19,6 +19,6 @@ jobs:
   npm-publish:
     name: NPM Publish
     needs: [security-scan, test]
-    uses: strongishllama/static-website-cdk/.github/workflows/_github-release.yml@main
+    uses: strongishllama/static-website-cdk/.github/workflows/_npm-publish.yml@main
     secrets:
       node-auth-token: ${{ secrets.NPM_TOKEN }}
